@@ -5,11 +5,23 @@ function init() {
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
 
-    addButton.addEventListener('click', addTask);
-    taskInput.addEventListener('keypress', handleKeyPress);
+    // Load tasks from local storage on page load
+    loadTasks();
 
-    function addTask() {
-        const taskText = taskInput.value.trim();
+    addButton.addEventListener('click', () => addTask(taskInput.value));
+    taskInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            addTask(taskInput.value);
+        }
+    });
+
+    function loadTasks() {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        storedTasks.forEach(taskText => addTask(taskText, false)); // 'false' indicates not to save again to Local Storage
+    }
+
+    function addTask(taskText, save = true) {
+        taskText = taskText.trim();
         if (taskText === '') {
             alert('Please enter a task');
             return;
@@ -20,21 +32,32 @@ function init() {
 
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
-        removeButton.classList.add = 'remove-btn';
+        removeButton.classList.add('remove-btn');
 
         removeButton.onclick = function() {
             taskList.removeChild(listItem);
+            removeTask(taskText);
         };
 
         listItem.appendChild(removeButton);
         taskList.appendChild(listItem);
 
         taskInput.value = '';
+
+        if (save) {
+            saveTask(taskText);
+        }
     }
 
-    function handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            addTask();
-        }
+    function saveTask(taskText) {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        storedTasks.push(taskText);
+        localStorage.setItem('tasks', JSON.stringify(storedTasks));
+    }
+
+    function removeTask(taskText) {
+        let storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        storedTasks = storedTasks.filter(task => task !== taskText);
+        localStorage.setItem('tasks', JSON.stringify(storedTasks));
     }
 }
