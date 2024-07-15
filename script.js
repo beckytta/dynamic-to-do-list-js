@@ -32,11 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
       // Create a remove button
       const removeButton = document.createElement('button');
       removeButton.textContent = 'Remove';
-      removeButton.classList.add('remove-btn'); // Add class for styling
+      removeButton.classList.add('remove-btn'); // Add class for styling using classList.add
 
       // Event listener for the remove button
       removeButton.addEventListener('click', function() {
           taskList.removeChild(listItem);
+          updateLocalStorage();
       });
 
       // Append remove button to list item
@@ -45,7 +46,53 @@ document.addEventListener('DOMContentLoaded', function() {
       // Append list item to task list
       taskList.appendChild(listItem);
 
+      // Save tasks to local storage
+      updateLocalStorage();
+
       // Clear input field after adding task
       taskInput.value = '';
   }
+
+  // Function to update local storage with current tasks
+  function updateLocalStorage() {
+      const tasks = [];
+      const taskElements = document.querySelectorAll('#task-list li');
+      taskElements.forEach(function(taskElement) {
+          tasks.push(taskElement.textContent.trim());
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+
+  // Function to load tasks from local storage on page load
+  function loadTasks() {
+      const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      storedTasks.forEach(function(taskText) {
+          addTaskToList(taskText);
+      });
+  }
+
+  // Function to add a task to the list from local storage
+  function addTaskToList(taskText) {
+      const listItem = document.createElement('li');
+      listItem.textContent = taskText;
+
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'Remove';
+      removeButton.classList.add('remove-btn'); // Add class for styling using classList.add
+
+      // Event listener for the remove button
+      removeButton.addEventListener('click', function() {
+          taskList.removeChild(listItem);
+          updateLocalStorage();
+      });
+
+      // Append remove button to list item
+      listItem.appendChild(removeButton);
+
+      // Append list item to task list
+      taskList.appendChild(listItem);
+  }
+
+  // Load tasks from local storage on page load
+  loadTasks();
 });
